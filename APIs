@@ -1,0 +1,45 @@
+<!-- //////////////////////////////////////////// -->
+///////////////////// API ///////////////////////////
+<!-- //////////////////////////////////////////// -->
+
+
+
+RapidAPI : 
+https://rapidapi.com/yeisonpx/api/amazon-web-scraping-api : Highly flexible but needs search query, name is descriptive (can help in gender detection)
+https://rapidapi.com/DataCrawler/api/asos10/ : Much better data and images, similar to amazon (50 results)
+
+
+
+
+
+NOT CONSIDERING
+
+
+https://rapidapi.com/apidojo/api/forever21 : Helpful in group customization (gender discrimination), lots of parameters : LLess no of items
+
+E-commerce Scrappers :
+https://github.com/dvishal485/flipkart-scraper-api : Limited search per page, Title is descriptive (can be used for gender identification etc), Only generic search returns thumbnail not all (40 search results only) 
+
+Misc : 
+https://dev.weebly.com/pf_api_product_images.html : Needs some config
+
+
+
+
+DEFINITELY NOT CONSIDERING
+
+
+ML Model
+https://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.html : BEST DATA, with high no. of params and dataset (Updated 2022)
+
+
+https://github.com/shaantanu9/Myntra-API/tree/main : Fixed data to work upon (around 330 products only), Some missing image urls (Requires data cleaning)
+
+Image Searching APIs : 
+https://api.pexels.com/ : Non tailored searched, might not be related, but huge database
+
+https://rapidapi.com/gabrielius.u/api/taobao-api : [PAID] couldn't help testing it.
+
+https://developer.bigcommerce.com/docs/rest-catalog/products : not suitable
+
+
