@@ -6,8 +6,10 @@ import json
 API Calls based on https://rapidapi.com/DataCrawler/api/asos10/
 """
 
+# Disable to have all sets of items
 ENFORCE_API_LIMIT=True
 MAX_API_CALLS=3
+RAPID_API_KEY="b7e214e07cmsh48e876c8d143ab7p1650f8jsn9321a4c9ea75"
 
 def main():
     items = get_items()
@@ -15,23 +17,43 @@ def main():
     categories = list(map(lambda x: x['title'], items))
     print("Categories : ", categories, "\n\n\n\n")
 
-    categoryIds = get_cat_id(items)
+    menCategory = ["A-Z Men's Brands", "A-Z Men's Outlet Brands", 'A-Z of brands: Outlet & sale', 'Men']
+    womenCategory = ["A-Z Women's Brands", 'A-Z of brands: Outlet & sale', 'Women']
 
+    categoryMenIds = get_cat_id(items, menCategory)
+    categoryWomenIds = get_cat_id(items, womenCategory)
 
-    products = []
-    
+    mens_products = []
+    womens_products = []
+
     counter=1
-    for catId in categoryIds:
+
+    # Half API calls reserved for mens
+    for catId in categoryMenIds:
+        counter+=1
+        if ENFORCE_API_LIMIT and counter == MAX_API_CALLS // 2:
+            break
+        mens_products.extend(get_products(catId))
+
+    # Other API calls for women
+    for catId in categoryWomenIds:
         counter+=1
         if ENFORCE_API_LIMIT and counter == MAX_API_CALLS:
             break
-        products.extend(get_products(catId))
-
-    print(products)
+        womens_products.extend(get_products(catId))
     
 
-    # Sample Image showing
-    url_to_image("http://" + products[0]['imageUrl']).show()
+    print("MENS : ", mens_products, "\n\n\n\n")
+    print("WOMENS : ", womens_products, "\n\n\n\n")
+
+
+    # Sample Image 
+    if len(mens_products) > 0:
+        url_to_image("http://" + mens_products[0]['imageUrl']).show()
+
+    if len(womens_products) > 0:
+        url_to_image("http://" + womens_products[0]['imageUrl']).show()
+
 
 def get_products(catId):
     url = "https://asos10.p.rapidapi.com/api/v1/getProductList"
@@ -39,21 +61,25 @@ def get_products(catId):
     querystring = {"categoryId":catId,"currency":"USD","country":"US","store":"US","languageShort":"en","sizeSchema":"US","limit":"200","offset":"0"}
 
     headers = {
-        "X-RapidAPI-Key": "a71549cbabmsh2e17a51866bd59bp1f181djsn1042c51dc488",
+        "X-RapidAPI-Key": RAPID_API_KEY,
         "X-RapidAPI-Host": "asos10.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)
+    try:
+        return response.json()["data"]["products"]
+    except KeyError:
+        print(response.json()["message"], "\n\n\n")
+        return []
 
-    return response.json()["data"]["products"]
-
-def get_cat_id(itemsAll):
+def get_cat_id(itemsAll, allowedCategory):
     categoryIds = set()
     for itemList in itemsAll:
-        for item in itemList["children"]:
-            catId = item["link"]
-            if catId is not None:
-                categoryIds.add(catId["categoryId"])
+        if itemList["title"] in allowedCategory:
+            for item in itemList["children"]:
+                catId = item["link"]
+                if catId is not None:
+                    categoryIds.add(catId["categoryId"])
 
     return categoryIds
 
@@ -66,21 +92,25 @@ def get_items():
     url = "https://asos10.p.rapidapi.com/api/v1/getCategories"
 
     headers = {
-        "X-RapidAPI-Key": "a71549cbabmsh2e17a51866bd59bp1f181djsn1042c51dc488",
+        "X-RapidAPI-Key": RAPID_API_KEY,
         "X-RapidAPI-Host": "asos10.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers)
+    data = response.json()
+    try:
+        data = data['data']
 
-    data = response.json()['data']
+        category = []
 
-    category = []
+        for key in data:
+            for types in data[key]:
+                category.append({"id": types['id'], "title": types['content']['title'], "children": types['children']})
 
-    for key in data:
-        for types in data[key]:
-            category.append({"id": types['id'], "title": types['content']['title'], "children": types['children']})
-
-    return category
+        return category
+    except KeyError:
+        print(data["message"], "\n\n\n")
+        return []
 
 
 def url_to_image(url):
