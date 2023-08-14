@@ -17,34 +17,48 @@ def main():
     categories = list(map(lambda x: x['title'], items))
     print("Categories : ", categories, "\n\n\n\n")
 
-    menCategory = ["A-Z Men's Brands", "A-Z Men's Outlet Brands", 'A-Z of brands: Outlet & sale', 'Men']
-    womenCategory = ["A-Z Women's Brands", 'A-Z of brands: Outlet & sale', 'Women']
+    menCategory = ["A-Z Men's Brands", "A-Z Men's Outlet Brands", 'Men']
+    womenCategory = ["A-Z Women's Brands", 'Women']
+    otherCategory = ['A-Z of brands: Outlet & sale']
 
     categoryMenIds = get_cat_id(items, menCategory)
     categoryWomenIds = get_cat_id(items, womenCategory)
+    categoryOtherIds = get_cat_id(items, otherCategory)
 
     mens_products = []
     womens_products = []
+    other_products = []
 
     counter=1
 
     # Half API calls reserved for mens
     for catId in categoryMenIds:
         counter+=1
-        if ENFORCE_API_LIMIT and counter == MAX_API_CALLS // 2:
+        if ENFORCE_API_LIMIT and counter == MAX_API_CALLS // 3:
             break
         mens_products.extend(get_products(catId))
 
     # Other API calls for women
     for catId in categoryWomenIds:
         counter+=1
-        if ENFORCE_API_LIMIT and counter == MAX_API_CALLS:
+        if ENFORCE_API_LIMIT and counter == (MAX_API_CALLS * 2) // 3:
             break
         womens_products.extend(get_products(catId))
+
+    for catId in categoryOtherIds:
+        counter+=1
+        if ENFORCE_API_LIMIT and counter == (MAX_API_CALLS * 2) // 3:
+            break
+        other_products.extend(get_products(catId))
+
+
+
     
 
     print("MENS : ", mens_products, "\n\n\n\n")
     print("WOMENS : ", womens_products, "\n\n\n\n")
+    print("OTHER : ", other_products, "\n\n\n\n")
+
 
 
     # Sample Image 
@@ -53,6 +67,9 @@ def main():
 
     if len(womens_products) > 0:
         url_to_image("http://" + womens_products[0]['imageUrl']).show()
+
+    if len(other_products) > 0:
+        url_to_image("http://" + other_products[0]['imageUrl']).show()
 
 
 def get_products(catId):
